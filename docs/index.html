@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DisasterReady CG</title>
+<style>
+:root{color-scheme:light dark;--bg:#fbf6ee;--c:#fff;--t:#2a1d17;--m:#7a6a5f;--p:#8b2e2e;--b:#e5d9c9;--g:#2e7d32;--y:#b08900;--o:#e65100;--r:#c62828}
+@media(prefers-color-scheme:dark){:root{--bg:#1d1613;--c:#2a201b;--t:#f2e8dc;--m:#b3a395;--p:#e07a6a;--b:#4a3a30;--y:#e0b400}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--t)}
+header{background:var(--p);color:#fff;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+header h1{font-size:18px;margin:0}header small{opacity:.85}
+.lang button{background:transparent;border:1px solid #fff;color:#fff;padding:4px 10px;border-radius:6px;cursor:pointer}
+.lang button.on{background:#fff;color:var(--p)}
+#bn{padding:8px 16px;font-size:13px;font-weight:600;background:#fff3cd;color:#5c4400}#bn.live{background:#dff3e0;color:#14501a}
+nav{display:flex;gap:4px;padding:8px 12px;overflow-x:auto;border-bottom:1px solid var(--b)}
+nav button{border:1px solid var(--b);background:var(--c);color:var(--t);padding:7px 14px;border-radius:20px;cursor:pointer;white-space:nowrap}
+nav button.on{background:var(--p);color:#fff;border-color:var(--p)}
+main{max-width:980px;margin:0 auto;padding:14px}
+.card{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:14px;margin-bottom:12px}
+.hello{font-size:24px;font-weight:700;color:var(--p)}.mut{color:var(--m);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:12px}
+.stat{background:var(--c);border:1px solid var(--b);border-radius:12px;padding:10px;text-align:center}.stat b{font-size:26px;display:block}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:7px 8px;border-bottom:1px solid var(--b);text-align:left}
+.bd{color:#fff;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap}
+.l0{background:var(--g)}.l1{background:var(--y)}.l2{background:var(--o)}.l3{background:var(--r)}
+input,select,textarea,button.a{font:inherit;padding:8px;border:1px solid var(--b);border-radius:8px;background:var(--c);color:var(--t);width:100%;margin-bottom:8px}
+button.a{background:var(--p);color:#fff;cursor:pointer;border:0;width:auto;padding:8px 16px}
+a.tel{color:var(--p);font-weight:700;text-decoration:none}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+svg text{fill:var(--t);font-size:9px}
+</style></head><body>
+<header><div><h1 id="app"></h1><small id="sub"></small></div>
+<div class="lang"><button data-l="cg">छत्तीसगढ़ी</button> <button data-l="hi">हिन्दी</button> <button data-l="en">English</button></div></header>
+<div id="bn"></div><nav id="nav"></nav><main id="v"></main>
+<script>
+const D=[["Raipur",21.2514,81.6296],["Bilaspur",22.0797,82.1409],["Durg",21.1904,81.2849],["Jagdalpur",19.0704,82.008],["Raigarh",21.8974,83.395],["Korba",22.3595,82.7501],["Ambikapur",23.1186,83.1977],["Dantewada",18.9,81.35],["Kanker",20.27,81.49],["Rajnandgaon",21.0974,81.0337]];
+const HN=["रायपुर","बिलासपुर","दुर्ग","जगदलपुर","रायगढ़","कोरबा","अंबिकापुर","दंतेवाड़ा","कांकेर","राजनांदगांव"];
+const SAMPLE=[12,30,8,70,25,18,5,95,40,22];
+const T={
+en:{app:"DisasterReady CG",sub:"Community Emergency Response Platform",hi:"Jai Johar!",hq:"Stay alert and safe, Chhattisgarh.",live:"LIVE rain forecast (Open-Meteo). Contacts & reports are sample/unverified. Not an official warning.",off:"OFFLINE: showing SAMPLE forecast data.",tabs:["Dashboard","Alerts","Contacts","Report"],d:"District",m3:"Max rain, next 3 days (mm)",tot:"7-day total (mm)",pp:"Rain chance %",rv:"River flow m³/s",lv:["Normal","Watch","Orange alert","Red alert"],nr:"Red/Orange districts",na:"No active alerts.",note:"Levels use IMD rain categories on forecast rainfall: Watch ≥15.6, Orange ≥64.5, Red ≥115.6 mm/day.",nat:"National / state helplines",dc:"District numbers (from district websites/news, call to confirm. Checked 22 Oct 2026)",fb:"If a number does not answer, dial 112.",rep:"Report a situation",ph:"What is happening? (location, water level)",off2:"From an official source",sub2:"Submit",wait:"Wait 60 seconds between reports.",pend:"Pending",ver:"Verified",conf:"Confirm",rule:"A report becomes Verified after 3 independent confirmations or an official source.",cul:"Chhattisgarh: the rice bowl of India. Rivers Mahanadi, Indravati, Hasdeo. Dhokra art, Panthi dance."},
+hi:{app:"डिज़ास्टर रेडी छत्तीसगढ़",sub:"सामुदायिक आपातकालीन प्रतिक्रिया मंच",hi:"जय जोहार!",hq:"छत्तीसगढ़ सतर्क और सुरक्षित रहे।",live:"लाइव बारिश पूर्वानुमान (Open-Meteo)। संपर्क और रिपोर्ट नमूना/असत्यापित हैं। यह आधिकारिक चेतावनी नहीं है।",off:"ऑफ़लाइन: नमूना डेटा दिखाया जा रहा है।",tabs:["डैशबोर्ड","चेतावनी","संपर्क","रिपोर्ट"],d:"जिला",m3:"अगले 3 दिन अधिकतम बारिश (मिमी)",tot:"7 दिन कुल (मिमी)",pp:"बारिश संभावना %",rv:"नदी प्रवाह m³/s",lv:["सामान्य","निगरानी","ऑरेंज अलर्ट","रेड अलर्ट"],nr:"रेड/ऑरेंज जिले",na:"कोई सक्रिय चेतावनी नहीं।",note:"स्तर पूर्वानुमानित बारिश पर IMD श्रेणियों से बने हैं: निगरानी ≥15.6, ऑरेंज ≥64.5, रेड ≥115.6 मिमी/दिन।",nat:"राष्ट्रीय / राज्य हेल्पलाइन",dc:"जिला नंबर (जिला वेबसाइट/समाचार से, कॉल करके पुष्टि करें। जाँच: 22 अक्टू 2026)",fb:"नंबर न लगे तो 112 डायल करें।",rep:"स्थिति की रिपोर्ट करें",ph:"क्या हो रहा है? (स्थान, पानी का स्तर)",off2:"आधिकारिक स्रोत से",sub2:"भेजें",wait:"दो रिपोर्ट के बीच 60 सेकंड रुकें।",pend:"लंबित",ver:"सत्यापित",conf:"पुष्टि करें",rule:"रिपोर्ट 3 स्वतंत्र पुष्टियों या आधिकारिक स्रोत से सत्यापित होती है।",cul:"छत्तीसगढ़: भारत का धान का कटोरा। महानदी, इंद्रावती, हसदेव। ढोकरा कला, पंथी नृत्य।"},
+cg:{app:"डिज़ास्टर रेडी छत्तीसगढ़",sub:"समुदाय बर आपातकालीन मदद मंच",hi:"जय जोहार!",hq:"छत्तीसगढ़ सावधान अउ सुरक्षित रहय।",live:"लाइव बादर-पानी अनुमान (Open-Meteo)। नंबर अउ रिपोर्ट नमूना/बिना जाँच के हें। ये सरकारी चेतावनी नइ हे।",off:"ऑफ़लाइन: नमूना डेटा देखावत हे।",tabs:["डैशबोर्ड","चेतावनी","संपर्क","रिपोर्ट"],d:"जिला",m3:"आगू 3 दिन के जादा पानी (मिमी)",tot:"7 दिन कुल (मिमी)",pp:"पानी गिरे के संभावना %",rv:"नदी बहाव m³/s",lv:["सामान्य","नजर","ऑरेंज अलर्ट","रेड अलर्ट"],nr:"रेड/ऑरेंज जिला",na:"कोनो चेतावनी नइ हे।",note:"स्तर अनुमानित पानी म IMD श्रेणी ले बने हे: नजर ≥15.6, ऑरेंज ≥64.5, रेड ≥115.6 मिमी/दिन।",nat:"राष्ट्रीय / राज्य हेल्पलाइन",dc:"जिला नंबर (जिला वेबसाइट/समाचार ले, फोन करके पक्का करव। जाँच: 22 अक्टू 2026)",fb:"नंबर नइ लगय त 112 डायल करव।",rep:"हाल के रिपोर्ट करव",ph:"का होवत हे? (जगा, पानी के स्तर)",off2:"सरकारी स्रोत ले",sub2:"भेजव",wait:"दू रिपोर्ट के बीच 60 सेकंड रुकव।",pend:"बाकी",ver:"पक्का",conf:"पुष्टि करव",rule:"रिपोर्ट 3 अलग-अलग पुष्टि या सरकारी स्रोत ले पक्का होथे।",cul:"छत्तीसगढ़: भारत के धान के कटोरा। महानदी, इंद्रावती, हसदेव। ढोकरा कला, पंथी नाच।"}};
+let L="en",tab=0,live=false,rows=[],reps=[],last=0;
+try{L=localStorage.getItem("lang")||"en"}catch(e){}
+const t=k=>T[L][k],dn=i=>L=="en"?D[i][0]:HN[i];
+const esc=s=>String(s).replace(/[<>&"']/g,"");
+const lv=m=>m>=115.6?3:m>=64.5?2:m>=15.6?1:0;
+const bd=l=>`<span class="bd l${l}">${t("lv")[l]}</span>`;
+async function load(){
+ const la=D.map(d=>d[1]).join(),lo=D.map(d=>d[2]).join();
+ try{
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&daily=precipitation_sum,precipitation_probability_max&forecast_days=7&timezone=Asia%2FKolkata`);
+  if(!r.ok)throw 0;const j=await r.json();
+  rows=j.map(x=>{const p=x.daily.precipitation_sum.map(v=>v||0);return{m3:Math.max(...p.slice(0,3)),tot:p.reduce((a,b)=>a+b,0),pp:Math.max(...x.daily.precipitation_probability_max.map(v=>v||0)),rv:null}});
+  if(rows.length!=D.length)throw 0;live=true;
+ }catch(e){live=false;rows=SAMPLE.map(m=>({m3:m,tot:m*2,pp:50,rv:null}))}
+ if(live)try{
+  const r=await fetch(`https://flood-api.open-meteo.com/v1/flood?latitude=${la}&longitude=${lo}&daily=river_discharge&forecast_days=7`);
+  const j=await r.json();j.forEach((x,i)=>rows[i].rv=Math.max(...x.daily.river_discharge.filter(v=>v!=null)));
+ }catch(e){}
+ draw();
+}
+function map(){
+ const A={Durg:[-13,-12,"end"],Rajnandgaon:[-13,18,"end"]};
+ return `<svg viewBox="0 0 667 1040" width="100%" style="max-height:620px"><image href="cg-map.png" width="667" height="1040"/>`+D.map((d,i)=>{
+  const x=37+(d[2]-80.25)*141,y=45+(24.1-d[1])*151,l=lv(rows[i].m3),o=A[d[0]]||[13,6,"start"];
+  return `<circle cx="${x}" cy="${y}" r="12" fill="var(--${["g","y","o","r"][l]})" stroke="#fff" stroke-width="2"/><text x="${x+o[0]}" y="${y+o[1]}" text-anchor="${o[2]}" style="font-size:19px;font-weight:600;fill:#222;stroke:#fff;stroke-width:4px;paint-order:stroke">${dn(i)}</text>`}).join("")+`</svg><div class="mut">Map base: d-maps.com</div>`;
+}
+function dash(){
+ const rs=rows.map((r,i)=>({...r,i,l:lv(r.m3)}));
+ const hi=rs.filter(r=>r.l>=2).length;
+ return `<div class="card"><div class="hello">${t("hi")}</div><div>${t("hq")}</div><div class="mut">${t("cul")}</div></div>
+ <div class="stats"><div class="stat"><b>${D.length}</b>${t("d")}</div><div class="stat"><b>${hi}</b>${t("nr")}</div><div class="stat"><b>${Math.max(...rs.map(r=>r.m3)).toFixed(0)}</b>mm max</div></div>
+ <div class="card">${map()}</div>
+ <div class="card tw"><table><tr><th>${t("d")}</th><th>${t("m3")}</th><th>${t("tot")}</th><th>${t("pp")}</th><th>${t("rv")}</th><th></th></tr>`+
+ rs.map(r=>`<tr><td>${dn(r.i)}</td><td>${r.m3.toFixed(1)}</td><td>${r.tot.toFixed(1)}</td><td>${r.pp}</td><td>${r.rv==null?"–":r.rv.toFixed(0)}</td><td>${bd(r.l)}</td></tr>`).join("")+`</table><div class="mut">${t("note")}</div></div>`;
+}
+function alerts(){
+ const a=rows.map((r,i)=>({i,l:lv(r.m3),m:r.m3})).filter(x=>x.l>=1).sort((a,b)=>b.l-a.l||b.m-a.m);
+ return a.length?a.map(x=>`<div class="card row"><b>${dn(x.i)}</b><span>${x.m.toFixed(1)} mm</span>${bd(x.l)}</div>`).join(""):`<div class="card">${t("na")}</div>`;
+}
+function contacts(){
+ const N=[["112","Emergency"],["108","Ambulance"],["100","Police"],["1077","District disaster control"],["1070","State disaster helpline"],["1098","Child helpline"],["1091","Women helpline"],["0771-2223471","State control room (Raipur)"]];
+ const C=[["Durg","0788-2322655","Collector office"],["Bilaspur","07752-223643","Control room"],["Dantewada","07856-252412","Control room"],["Korba","07759-228548","Control room"],["Jagdalpur","07782-223122","Control room"]];
+ return `<div class="card"><b>${t("nat")}</b><table>`+N.map(n=>`<tr><td><a class="tel" href="tel:${n[0].replace(/-/g,"")}">${n[0]}</a></td><td>${n[1]}</td></tr>`).join("")+`</table></div>
+ <div class="card"><b>${t("dc")}</b><table>`+C.map(n=>`<tr><td>${n[0]}</td><td><a class="tel" href="tel:${n[1].replace(/-/g,"")}">${n[1]}</a></td><td>${n[2]}</td></tr>`).join("")+`</table><div class="mut">${t("fb")}</div></div>`;
+}
+function report(){
+ return `<div class="card"><b>${t("rep")}</b><select id="rd">${D.map((d,i)=>`<option value="${i}">${dn(i)}</option>`).join("")}</select>
+ <textarea id="rt" rows="3" maxlength="300" placeholder="${t("ph")}"></textarea>
+ <label><input type="checkbox" id="ro" style="width:auto"> ${t("off2")}</label><br><br><button class="a" onclick="addR()">${t("sub2")}</button><div class="mut">${t("rule")}</div></div>`+
+ reps.map((r,k)=>{const v=r.c>=3||r.o;return `<div class="card row"><div><b>${dn(r.d)}</b>: ${esc(r.x)}<div class="mut">${r.c} ✓</div></div><span><span class="bd ${v?"l0":"l1"}">${v?t("ver"):t("pend")}</span> ${v?"":`<button class="a" onclick="cf(${k})">${t("conf")}</button>`}</span></div>`}).join("");
+}
+function addR(){
+ const x=esc(document.getElementById("rt").value.trim());if(!x)return;
+ if(Date.now()-last<60000){alert(t("wait"));return}
+ last=Date.now();reps.unshift({d:+document.getElementById("rd").value,x,c:0,o:document.getElementById("ro").checked});draw();
+}
+function cf(k){reps[k].c++;draw()}
+function draw(){
+ document.getElementById("app").textContent=t("app");document.getElementById("sub").textContent=t("sub");
+ const b=document.getElementById("bn");b.textContent=live?t("live"):t("off");b.className=live?"live":"";
+ document.querySelectorAll(".lang button").forEach(x=>x.classList.toggle("on",x.dataset.l==L));
+ document.getElementById("nav").innerHTML=t("tabs").map((x,i)=>`<button class="${i==tab?"on":""}" onclick="tab=${i};draw()">${x}</button>`).join("");
+ document.getElementById("v").innerHTML=[dash,alerts,contacts,report][tab]();
+}
+document.querySelectorAll(".lang button").forEach(x=>x.onclick=()=>{L=x.dataset.l;try{localStorage.setItem("lang",L)}catch(e){}draw()});
+rows=SAMPLE.map(m=>({m3:m,tot:m*2,pp:50,rv:null}));draw();load();
+</script></body></html>
