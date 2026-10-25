@@ -4,10 +4,10 @@ import numpy as np
 import joblib
 import plotly.express as px
 
-st.set_page_config(page_title="MoES SIH26080 Prototype", layout="wide")
+st.set_page_config(page_title="Kavach CG Prototype", layout="wide")
 
-st.title(" Aware AI Post-Processing of Monsoon Rainfall Forecasts (SIH26080)")
-st.write("Ministry of Earth Sciences (MoES) | Maharashtra Disaster Management Dashboard")
+st.title("🛡️ Kavach CG: AI-Driven Monsoon Flood & Disaster Warning Platform")
+st.write("Ministry of Earth Sciences (MoES) | Chhattisgarh Disaster Management Dashboard")
 
 # Step 1: Saved Models Load Karna
 try:
@@ -133,11 +133,12 @@ fig = px.scatter_map(
     size="corrected_rainfall",
     color="corrected_rainfall",
     hover_name="district",
-    zoom=5.5,
-    center={"lat": 18.9, "lon": 75.5},
+    zoom=6.0,
+    center={"lat": 21.27, "lon": 81.86},
     map_style="carto-positron",
-    title="Post-Processed Rainfall Prediction across Maharashtra (mm)"
+    title="Post-Processed Rainfall Prediction across Chhattisgarh (mm)"
 )
+
 st.plotly_chart(fig, use_container_width=True)
 
 # Step 9: Verification Metrics
